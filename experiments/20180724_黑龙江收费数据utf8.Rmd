@@ -1,0 +1,238 @@
+---
+title: "20180724_黑龙江收费数据"
+author: "wzy"
+date: "2018年7月24日"
+output: html_document
+---
+
+## 读取数据
+
+一共200万行，只读取10万行，22列
+
+```{r}
+rm(list=ls())
+hrb <- read.table("D:\\data\\sfsj\\黑龙江省2017年10月高速公路收费明细20171021-31（哈尔滨片区）.txt",
+                  sep=",",header=F,fill=T,nrows=100000,stringsAsFactors=F)
+dim(hrb)
+```
+
+```{r}
+names(hrb) <- c("ENNETINDEX","ENSTATIONINDEX","ENDATETIME","EXNETINDEX","EXSTATIONINDEX","EXDATETIME",
+                "EXLANE","VLP","VC","VT","MILEAGE","AXISNUM","AXISWEIGHT","REALWEIGHT","LIMITWEIGHT",
+                "OVERWEIGHTRATE","GREEN","FREETYPE","IDENTIFY","ETC","ETCOBU","PAYMENT")
+```
+
+```{r}
+str(hrb)
+```
+
+## 筛选数据
+
+入口网络编号和出口网络编号均为0，删除这两列
+
+```{r}
+hrb$ENNETINDEX <- NULL
+hrb$EXNETINDEX <- NULL
+dim(hrb)
+```
+
+## 描述性统计
+
+### 收费站
+
+入口站数量和出口站数量，基本就是148个
+
+```{r}
+length(unique(hrb$ENSTATIONINDEX))
+length(unique(hrb$EXSTATIONINDEX))
+```
+
+### 车型和车种
+
+车种，0：客车，1：货车
+
+```{r}
+table(hrb$VC,hrb$VT)
+```
+
+### 行驶里程
+
+```{r}
+plot(density(hrb$MILEAGE,na.rm = T))
+```
+
+```{r}
+plot(density(hrb$MILEAGE,na.rm = T,from = 0,to=200))
+```
+
+客车平均行驶距离75.6，货车平均行驶距离109.8。
+
+```{r}
+tapply(hrb$MILEAGE, hrb$VT, summary,simplify = T)
+```
+
+### 轴数
+
+客货车的轴数，0客车，1货车
+
+```{r}
+table(hrb$VT,hrb$AXISNUM)
+```
+
+### 载重
+
+分客货车载重：客车平均载重1.9吨，货车平均载重16吨。
+
+```{r}
+tapply(hrb$REALWEIGHT, hrb$VT, summary,simplify = T)
+```
+
+分车种和车型的平均载重，前4行为客车，后5行为货车。前两行客车的Max数据可能有误。
+
+```{r}
+aggregate(REALWEIGHT~VC+VT,data=hrb,FUN=summary,na.rm=T)
+```
+
+### 超限率
+
+超限率=(车货总重-限重)/限重
+
+```{r}
+table(hrb$OVERWEIGHTRATE)
+```
+
+### 绿通车
+
+0不是绿通车，1是绿通车
+
+```{r}
+table(hrb$GREEN)
+```
+
+### 免费车
+
+```{r}
+table(hrb$FREETYPE)
+```
+
+### 路径标识
+
+```{r}
+sum(hrb$IDENTIFY,na.rm = T)
+```
+
+没有路径标识
+
+
+### ETC
+
+```{r}
+table(hrb$ETC)
+```
+
+均为非ETC
+
+### 支付方式
+
+0现金支付，1电子支付
+
+```{r}
+table(hrb$PAYMENT)
+```
+
+## 日期处理
+
+### 拆分入口日起
+
+```{r}
+hrb$ENDATETIME <- as.POSIXct(hrb$ENDATETIME)
+hrb$EXDATETIME <- as.POSIXct(hrb$EXDATETIME)
+```
+
+### 计算旅行时间和速度
+
+```{r}
+hrb$TIMEDIFF  <- hrb$EXDATETIME-hrb$ENDATETIME
+hrb$TIMEDIFF <- as.numeric(hrb$TIMEDIFF)
+hrb$SPEED <- hrb$MILEAGE*1000/hrb$TIMEDIFF*3.6
+```
+
+```{r}
+nrow(hrb[hrb$SPEED<0,])
+```
+
+1224个样本速度为负，例如
+
+```{r}
+hrb[which(hrb$SPEED<0)[1],]
+```
+
+```{r}
+hrb[which(hrb$SPEED<0)[2],]
+```
+
+出口时间比入口时间还要早，所以时间差为负数
+
+```{r}
+nrow(hrb[hrb$SPEED>150,])
+```
+
+1865个样本速度大于200，例如
+
+```{r}
+hrb[which(hrb$SPEED>200)[1],]
+```
+
+42秒的时间跑了13公里，显然不可能
+
+```{r}
+hrb[which(hrb$SPEED>200)[2],]
+```
+
+1小时跑了323公里，比高铁还快
+
+客车中位速度93.26，货车中位速度65.80，还算合理
+
+```{r}
+tapply(hrb$SPEED,hrb$VT,summary)
+```
+
+剔除速度大于150和小于10的样本
+
+```{r}
+hrbs <- hrb[hrb$SPEED>10 & hrb$SPEED<150,]
+dim(hrbs)
+```
+
+```{r}
+tapply(hrbs$SPEED,hrbs$VT,summary)
+```
+
+剔除后数据变化不大，均值和中位数差别不大，说明有偏情况不严重。
+
+## 收费站处理
+
+查看是否有进入站和驶出站相同的
+
+```{r}
+nrow(hrbs[hrbs$ENSTATIONINDEX == hrbs$EXSTATIONINDEX,])
+```
+
+有869个相同的，这些旅行里程和旅行时间怎么样？
+
+```{r}
+hrbs[which(hrbs$ENSTATIONINDEX == hrbs$EXSTATIONINDEX)[1],]
+hrbs[which(hrbs$ENSTATIONINDEX == hrbs$EXSTATIONINDEX)[2],]
+```
+
+这些样本数据基本都缺失，删除这些样本
+
+```{r}
+hrbs <- hrbs[!is.na(hrbs$ENSTATIONINDEX),]
+dim(hrbs)
+```
+
+```{r}
+head(hrbs[c("ENSTATIONINDEX","EXSTATIONINDEX")])
+```
+
