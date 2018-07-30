@@ -3,6 +3,8 @@ Type: Package
 Title: This package is designed for Highway Virtual Traffic Survey Station project.
 Version: 0.0.0.9000
 Author@R: person("ZhiYuan","Wang",email="lzyz09193@163.com",role="aut","cre")
+Author: ZhiYuan Wang
+Maintainer: ZhiYuan Wang <lzyz09193@163.com>
 Description: This package focuses on 4 topics. First, dealing with highway 
     charge data. Second, dealing with adjacency matrix of road network.
     Third, transforming O-D information into path information. 
@@ -11,3 +13,4 @@ License: GPL
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
+Suggests: testthat
