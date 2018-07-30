@@ -115,6 +115,11 @@ dijkstra_i_path = function(weight_mat, source_node, many_path = FALSE) {
   if (many_path) {
     path = result_path
   }
-  re = list(result, path)
+  k <- list()
+  for(i in 1:N){
+    k[[i]] <- paste(path[i,][path[i,]!=0],collapse = ",")
+  }
+
+  re = list(result, k)
 
 }  ## end function
