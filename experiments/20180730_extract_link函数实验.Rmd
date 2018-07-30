@@ -1,0 +1,55 @@
+---
+title: "20180730_extract_link函数实验"
+author: "wzy"
+date: "2018年7月30日"
+output: html_document
+---
+
+本实验演示extract_link的用法
+
+假如有一辆车，其O点为1，D点为8，通过dijkstra_matrix运算及双层列表查找，其路径为"1,3,5,7,8"
+
+使用extract_link函数提取其link
+
+```{r}
+extract_link("1,3,5,7,8")
+```
+
+假设有收费数据的数据框df如下
+
+```{r}
+df <- data.frame(a=1:3,b=letters[1:3])
+df
+```
+
+现添加c列为所经过link信息
+
+```{r}
+df$c[[1]] <- extract_link("1,3,5,7,8")
+df$c[[2]] <- extract_link("1,4,6,8")
+df$c[[3]] <- extract_link("1,4,5,7,9")
+df
+```
+
+收集所有link信息
+
+```{r}
+unique(unlist(df$c))
+```
+
+统计5-7这段link的交通流
+
+```{r}
+t <- lapply(df$c,str_subset,"5-7") %>% as.character()
+length(t[t!="character(0)"])
+```
+
+统计1-4这段link的交通流
+
+```{r}
+t <- lapply(df$c,str_subset,"5-7") %>% as.character()
+length(t[t!="character(0)"])
+```
+
+
+
