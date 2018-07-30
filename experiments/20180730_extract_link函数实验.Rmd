@@ -5,6 +5,11 @@ date: "2018年7月30日"
 output: html_document
 ---
 
+```{r}
+library(HVS)
+```
+
+
 本实验演示extract_link / all_link 和 caculate_natureflow的用法
 
 假如有一辆车，其O点为1，D点为8，通过dijkstra_matrix运算及双层列表查找，其路径为"1,3,5,7,8"
