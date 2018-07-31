@@ -87,11 +87,8 @@ caculate_natureflow("1-2",demosf$link)
 ### 计算所有link单日交通量
 
 ```{r}
-all_link <- data.frame(link=all_link)
-all_link$count <- apply(all_link['link'],1,caculate_natureflow,demosf$link)
+sapply(all_link, caculate_natureflow,demosf$link)
 ```
 
-```{r}
-all_link
-```
+
 
