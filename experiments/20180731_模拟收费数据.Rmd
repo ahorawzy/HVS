@@ -16,6 +16,8 @@ library(magrittr)
 
 ## 第一步
 
+![示例路网图](D:\R\packages\HVS\experiments\demomap2.png)
+
 得到路网邻接权重矩阵
 
 ```{r}
@@ -40,6 +42,7 @@ path <- result[[2]]
 核心的有两列：O列和D列，O和D在1~10中随机抽样10万次。
 
 ```{r}
+set.seed(1234)
 demosf <- data.frame(O=sample(1:10,100000,replace = T),D=sample(1:10,100000,replace = T))
 dim(demosf)
 ```
@@ -85,10 +88,6 @@ caculate_natureflow("1-2",demosf$link)
 
 ```{r}
 all_link <- data.frame(link=all_link)
-all_link
-```
-
-```{r}
 all_link$count <- apply(all_link['link'],1,caculate_natureflow,demosf$link)
 ```
 
