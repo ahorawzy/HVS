@@ -1,0 +1,98 @@
+---
+title: "20180731_模拟收费数据"
+author: "wzy"
+date: "2018年7月31日"
+output: html_document
+---
+
+```{r}
+library(HVS)
+library(lubridate)
+library(magrittr)
+```
+
+
+今天的实验主要是利用昨天下午建好的10个点的小路网，模拟出收费数据，计算交通流。即在小路网上打通1,2,3三步。
+
+## 第一步
+
+得到路网邻接权重矩阵
+
+```{r}
+load("D:/R/packages/HVS/data-raw/road_net.RData")
+road_net
+```
+
+## 第二步
+
+根据权重矩阵计算里程矩阵和路径矩阵
+
+```{r}
+result <- dijkstra_matrix(road_net)
+mileage <- result[[1]]
+path <- result[[2]]
+```
+
+## 第三步：计算交通流
+
+### 模拟收费数据
+
+核心的有两列：O列和D列，O和D在1~10中随机抽样10万次。
+
+```{r}
+demosf <- data.frame(O=sample(1:10,100000,replace = T),D=sample(1:10,100000,replace = T))
+dim(demosf)
+```
+
+去掉O和D相同的行
+
+```{r}
+demosf[demosf$O == demosf$D,] %>% nrow()
+```
+
+```{r}
+demosf <- demosf[demosf$O != demosf$D,]
+dim(demosf)
+```
+
+### 路径分配
+
+```{r}
+demosf$path <- mapply(function(O,D) path[[O]][[D]],demosf$O,demosf$D)
+head(demosf)
+```
+
+### 拆分link
+
+```{r}
+demosf$link <- lapply(demosf$path,extract_link)
+head(demosf)
+```
+
+### 得到所有link
+
+```{r}
+(all_link <- all_link(road_net))
+```
+
+### 计算某一段link单日交通量
+
+```{r}
+caculate_natureflow("1-2",demosf$link)
+```
+
+### 计算所有link单日交通量
+
+```{r}
+all_link <- data.frame(link=all_link)
+all_link
+```
+
+```{r}
+all_link$count <- apply(all_link['link'],1,caculate_natureflow,demosf$link)
+```
+
+```{r}
+all_link
+```
+
