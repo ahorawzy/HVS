@@ -65,6 +65,11 @@ demosf$path <- mapply(function(O,D) path[[O]][[D]],demosf$O,demosf$D)
 head(demosf)
 ```
 
+```{r}
+x <- Map(function(O,D) path[[O]][[D]],demosf$O,demosf$D)
+system.time(Map(function(O,D) path[[O]][[D]],demosf$O,demosf$D))
+```
+
 ### 拆分link
 
 ```{r}
