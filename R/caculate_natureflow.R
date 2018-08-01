@@ -1,5 +1,6 @@
 #' @export
 caculate_natureflow <- function(objlink,sflinkcol){
-  t <- sapply(sflinkcol, function(x,y) y %in% x, y = objlink)
+  #t <- sapply(sflinkcol, function(x,y) y %in% x, y = objlink)
+  t <- vapply(sflinkcol, function(x,y) y %in% x, y = objlink,logical(1))
   return(sum(t))
 }
