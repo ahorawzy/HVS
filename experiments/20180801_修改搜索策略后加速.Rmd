@@ -167,3 +167,20 @@ system.time(sapply(all_link, caculate_natureflow,demosf_dt$link))
 ```
 
 时间提升到了6秒之内。
+
+# 并行化加速
+
+```{r}
+library(parallel)
+cores <- detectCores()
+cluster <- makePSOCKcluster(cores)
+l <- parLapply(cluster,all_link,caculate_natureflow,demosf_dt$link)
+names(l) <- all_link
+simplify2array(l)
+```
+
+```{r}
+system.time(parLapply(cluster,all_link,caculate_natureflow,demosf_dt$link))
+```
+
+速度继续大大提升。
