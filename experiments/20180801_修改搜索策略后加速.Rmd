@@ -7,7 +7,7 @@ output: html_document
 
 只将df改为dt不能实现明显的加速，考虑改变搜索策略。
 
-将
+将用str_subset字符串匹配
 
 ```
 caculate_natureflow <- function(objlink,sflinkcol){
@@ -17,7 +17,7 @@ caculate_natureflow <- function(objlink,sflinkcol){
 }
 ```
 
-修改为
+修改为查找是否%in%
 
 ```
 #' @export
@@ -25,6 +25,37 @@ caculate_natureflow <- function(objlink,sflinkcol){
   t <- sapply(sflinkcol, function(x,y) y %in% x, y = objlink)
   return(sum(t))
 }
+```
+
+继续将sapply改为vapply
+
+```
+#' @export
+caculate_natureflow <- function(objlink,sflinkcol){
+  t <- vapply(sflinkcol, function(x,y) y %in% x, y = objlink,logical(1))
+  return(sum(t))
+}
+```
+
+继续将vapply简化为Filter
+
+```
+#' @export
+caculate_natureflow <- function(objlink,sflinkcol){
+  t <- Filter(function(x) objlink %in% x, sflinkcol)
+  return(length(t))
+}
+```
+
+最后并行化实现
+
+```
+library(parallel)
+cores <- detectCores()
+cluster <- makePSOCKcluster(cores)
+l <- parLapply(cluster,all_link,caculate_natureflow,demosf_dt$link)
+names(l) <- all_link
+simplify2array(l)
 ```
 
 ```{r}
