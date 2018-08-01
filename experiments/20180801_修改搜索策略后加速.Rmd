@@ -1,0 +1,169 @@
+---
+title: "20180801_修改搜索策略后加速"
+author: "wzy"
+date: "2018年8月1日"
+output: html_document
+---
+
+只将df改为dt不能实现明显的加速，考虑改变搜索策略。
+
+将
+
+```
+caculate_natureflow <- function(objlink,sflinkcol){
+   t <- as.character(lapply(sflinkcol,stringr::str_subset,objlink))
+   l <- length(t[t!="character(0)"])
+   return(l)
+}
+```
+
+修改为
+
+```
+#' @export
+caculate_natureflow <- function(objlink,sflinkcol){
+  t <- sapply(sflinkcol, function(x,y) y %in% x, y = objlink)
+  return(sum(t))
+}
+```
+```{r}
+library(HVS)
+library(lubridate)
+library(magrittr)
+library(data.table)
+```
+
+# DF
+
+## 第一步
+
+![示例路网图](D:\R\packages\HVS\experiments\demomap2.png)
+
+得到路网邻接权重矩阵
+
+```{r}
+load("D:/R/packages/HVS/data-raw/road_net.RData")
+road_net
+```
+
+## 第二步
+
+根据权重矩阵计算里程矩阵和路径矩阵
+
+```{r}
+result <- dijkstra_matrix(road_net)
+mileage <- result[[1]]
+path <- result[[2]]
+```
+
+## 第三步：计算交通流
+
+### 模拟收费数据
+
+核心的有两列：O列和D列，O和D在1~10中随机抽样10万次。
+
+```{r}
+set.seed(1234)
+demosf <- data.frame(O=sample(1:10,100000,replace = T),D=sample(1:10,100000,replace = T))
+dim(demosf)
+```
+
+去掉O和D相同的行
+
+```{r}
+demosf[demosf$O == demosf$D,] %>% nrow()
+```
+
+```{r}
+demosf <- demosf[demosf$O != demosf$D,]
+dim(demosf)
+```
+
+### 路径分配
+
+```{r}
+demosf$path <- mapply(function(O,D) path[[O]][[D]],demosf$O,demosf$D)
+head(demosf)
+```
+
+### 拆分link
+
+```{r}
+demosf$link <- lapply(demosf$path,extract_link)
+head(demosf)
+```
+
+### 得到所有link
+
+```{r}
+(all_link <- all_link(road_net))
+```
+
+### 计算某一段link单日交通量
+
+```{r}
+caculate_natureflow("1-2",demosf$link)
+```
+
+### 计算所有link单日交通量
+
+```{r}
+sapply(all_link, caculate_natureflow,demosf$link)
+```
+
+```{r}
+system.time(sapply(all_link, caculate_natureflow,demosf$link))
+```
+
+时间从一分钟减少到了6秒多。
+
+# DT
+
+### 转换为DT结构并设置key
+
+```{r}
+demosf_dt <- as.data.table(demosf)
+dim(demosf_dt)
+```
+
+```{r}
+setkey(demosf_dt,O,D)
+```
+
+### 路径分配
+
+```{r}
+demosf_dt$path <- mapply(function(O,D) path[[O]][[D]],demosf_dt$O,demosf_dt$D)
+head(demosf_dt)
+```
+
+### 拆分link
+
+```{r}
+demosf_dt$link <- lapply(demosf_dt$path,extract_link)
+head(demosf_dt)
+```
+
+### 得到所有link
+
+```{r}
+(all_link <- all_link(road_net))
+```
+
+### 计算某一段link单日交通量
+
+```{r}
+caculate_natureflow("1-2",demosf_dt$link)
+```
+
+### 计算所有link单日交通量
+
+```{r}
+sapply(all_link, caculate_natureflow,demosf_dt$link)
+```
+
+```{r}
+system.time(sapply(all_link, caculate_natureflow,demosf_dt$link))
+```
+
+时间提升到了6秒之内。
