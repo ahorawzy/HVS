@@ -1,6 +1,5 @@
 #' @export
 caculate_natureflow <- function(objlink,sflinkcol){
-  t <- as.character(lapply(sflinkcol,stringr::str_subset,objlink))
-  l <- length(t[t!="character(0)"])
-  return(l)
+  t <- sapply(sflinkcol, function(x,y) y %in% x, y = objlink)
+  return(sum(t))
 }
