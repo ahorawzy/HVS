@@ -90,5 +90,8 @@ caculate_natureflow("1-2",demosf$link)
 sapply(all_link, caculate_natureflow,demosf$link)
 ```
 
+```{r}
+system.time(sapply(all_link, caculate_natureflow,demosf$link))
+```
 
-
+用了近1分钟时间来计算每段link的交通量
