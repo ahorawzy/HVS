@@ -26,6 +26,7 @@ caculate_natureflow <- function(objlink,sflinkcol){
   return(sum(t))
 }
 ```
+
 ```{r}
 library(HVS)
 library(lubridate)
