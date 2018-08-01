@@ -1,5 +1,6 @@
 #' @export
 extract_link <- function(path_i){
+
   p <- path_i
   p <- strsplit(p,split = ",")[[1]]
   Nlink <- length(p) - 1
