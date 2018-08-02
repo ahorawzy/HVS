@@ -66,9 +66,10 @@ head(demosf)
 ```
 
 ```{r}
-x <- Map(function(O,D) path[[O]][[D]],demosf$O,demosf$D)
-system.time(Map(function(O,D) path[[O]][[D]],demosf$O,demosf$D))
+x <- Map(function(O,D,roadpath=path) roadpath[[O]][[D]],demosf$O,demosf$D)
+head(x)
 ```
+
 
 ### 拆分link
 
