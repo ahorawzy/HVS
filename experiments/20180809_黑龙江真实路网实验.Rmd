@@ -9,25 +9,15 @@ output: html_document
 
 ```{r}
 library(HVS)
+library(magrittr)
+library(knitr)
 ```
 
 ```{r}
-hlj_roadnet <- read.csv("D:\\data\\sx_raw\\黑龙江\\邻接矩阵.csv")
-hlj_roadnet <- hlj_roadnet[,-1]
-names(hlj_roadnet) <- 1:200
-hlj_roadnet <- as.matrix(hlj_roadnet)
-```
-
-```{r}
-station_index <- read.csv("D:\\data\\sx_raw\\黑龙江\\站对应序号.csv",stringsAsFactors=F)
-station_infor <- read.csv("D:\\data\\sx_raw\\黑龙江\\站信息.csv",stringsAsFactors=F)
-station_infor <- station_infor[,-1]
-dim(station_infor)
-```
-
-```{r}
-station <- merge(station_index,station_infor,by.x = "站名",by.y="收费站名称",all=T)
-dim(station)
+load("D:/R/packages/HVS/data-raw/hlj_roadnet.RData")
+load("D:/R/packages/HVS/data-raw/hlj_station.RData")
+load("D:/R/packages/HVS/data-raw/indextable.RData")
+load("D:/R/packages/HVS/data-raw/hrbs.RData")
 ```
 
 
@@ -38,19 +28,55 @@ path <- result[[2]]
 ```
 
 ```{r}
-outcome <- character(length = 200)
-for(i in 1:200){
-  outcome[i] <- hlj_station[hlj_station$序号==i,"SUID"]
-}
+dim(hrbs)
+```
+
+## 编码转序号
+
+```{r}
+hrbs$ENSEQ <- indextoseq(hrbs$ENSTATIONINDEX)
+hrbs$EXSEQ <- indextoseq(hrbs$EXSTATIONINDEX)
+```
+
+去掉序号为0的，即编码找不到的
+
+```{r}
+hrbs <- hrbs[hrbs$ENSEQ != 0 & hrbs$EXSEQ != 0,]
+dim(hrbs)
+```
+
+## 路径匹配
+
+```{r}
+hrbs$path <- mapply(function(O,D) path[[O]][[D]],hrbs$ENSEQ,hrbs$EXSEQ)
+head(hrbs$path)
+```
+
+## 拆分link
+
+```{r}
+hrbs$link <- lapply(hrbs$path,extract_link)
+head(hrbs$link)
+```
+
+## 得到所有link
+
+```{r}
+alllink <- all_link(hlj_roadnet)
+alllink
+```
+
+## 计算所有link单日交通量
+
+```{r}
+library(parallel)
+cores <- detectCores()
+cluster <- makePSOCKcluster(cores)
+l <- parLapply(cluster,alllink,caculate_natureflow,hrbs$link)
+names(l) <- alllink
 ```
 
 ```{r}
-rownames(hlj_roadnet) <- as.numeric(outcome)
-colnames(hlj_roadnet) <- as.numeric(outcome)
+data.frame(traffic_volumn = simplify2array(l))
 ```
 
-```{r}
-result <- dijkstra_matrix(weight_mat = hlj_roadnet)
-mileage <- result[[1]]
-path <- result[[2]]
-```
