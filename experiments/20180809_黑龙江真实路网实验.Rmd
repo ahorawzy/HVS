@@ -77,6 +77,9 @@ names(l) <- alllink
 ```
 
 ```{r}
-data.frame(traffic_volumn = simplify2array(l))
+d <- data.frame(traffic_volumn = simplify2array(l))
+d$seqlink <- rownames(d)
+d$indexlink <- seqlinktoindexlink(rownames(d))
+d
 ```
 
