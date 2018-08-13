@@ -15,3 +15,15 @@ findseq <- function(index){
     return(0)
   }
 }
+
+#' @export
+seqlinktoindexlink <- function(seqlinks){
+  return(vapply(seqlinks, findindexlink, character(1)))
+}
+
+findindexlink <- function(seqlink){
+  seqtwopoint <- as.numeric(strsplit(seqlink,split = "-")[[1]])
+  indextwopoint <- seqtoindex(seqtwopoint)
+  indexlink <- paste(indextwopoint,collapse = "-")
+  return(indexlink)
+}
