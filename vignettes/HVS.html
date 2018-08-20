@@ -100,54 +100,54 @@ mileage &lt;-<span class="st"> </span>result[[<span class="dv">1</span>]]
 path &lt;-<span class="st"> </span>result[[<span class="dv">2</span>]]</code></pre></div>
 <p>Allocate every sample a route path.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">demosf<span class="op">$</span>path &lt;-<span class="st"> </span><span class="kw">mapply</span>(<span class="cf">function</span>(O,D) path[[O]][[D]],demosf<span class="op">$</span>O,demosf<span class="op">$</span>D)
-<span class="kw">head</span>(demosf,<span class="dv">10</span>)
-<span class="co">#&gt;    O  D      path</span>
-<span class="co">#&gt; 1  2  7     2,3,7</span>
-<span class="co">#&gt; 2  7  3       7,3</span>
-<span class="co">#&gt; 3  7  6       7,6</span>
-<span class="co">#&gt; 4  7 10  7,3,8,10</span>
-<span class="co">#&gt; 5  9 10    9,8,10</span>
-<span class="co">#&gt; 6  7  1   7,3,8,1</span>
-<span class="co">#&gt; 7  1  5   1,8,4,5</span>
-<span class="co">#&gt; 8  3  6     3,7,6</span>
-<span class="co">#&gt; 9  7  4     7,3,4</span>
-<span class="co">#&gt; 10 6  1 6,7,3,8,1</span></code></pre></div>
+<span class="kw">head</span>(demosf,<span class="dv">10</span>)</code></pre></div>
+<pre><code>##    O  D      path
+## 1  2  7     2,3,7
+## 2  7  3       7,3
+## 3  7  6       7,6
+## 4  7 10  7,3,8,10
+## 5  9 10    9,8,10
+## 6  7  1   7,3,8,1
+## 7  1  5   1,8,4,5
+## 8  3  6     3,7,6
+## 9  7  4     7,3,4
+## 10 6  1 6,7,3,8,1</code></pre>
 </div>
 <div id="split-path-to-link" class="section level3">
 <h3>Split path to link</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">demosf<span class="op">$</span>link &lt;-<span class="st"> </span><span class="kw">lapply</span>(demosf<span class="op">$</span>path,extract_link)
-<span class="kw">head</span>(demosf,<span class="dv">10</span>)
-<span class="co">#&gt;    O  D      path               link</span>
-<span class="co">#&gt; 1  2  7     2,3,7           2-3, 3-7</span>
-<span class="co">#&gt; 2  7  3       7,3                7-3</span>
-<span class="co">#&gt; 3  7  6       7,6                7-6</span>
-<span class="co">#&gt; 4  7 10  7,3,8,10     7-3, 3-8, 8-10</span>
-<span class="co">#&gt; 5  9 10    9,8,10          9-8, 8-10</span>
-<span class="co">#&gt; 6  7  1   7,3,8,1      7-3, 3-8, 8-1</span>
-<span class="co">#&gt; 7  1  5   1,8,4,5      1-8, 8-4, 4-5</span>
-<span class="co">#&gt; 8  3  6     3,7,6           3-7, 7-6</span>
-<span class="co">#&gt; 9  7  4     7,3,4           7-3, 3-4</span>
-<span class="co">#&gt; 10 6  1 6,7,3,8,1 6-7, 7-3, 3-8, 8-1</span></code></pre></div>
+<span class="kw">head</span>(demosf,<span class="dv">10</span>)</code></pre></div>
+<pre><code>##    O  D      path               link
+## 1  2  7     2,3,7           2-3, 3-7
+## 2  7  3       7,3                7-3
+## 3  7  6       7,6                7-6
+## 4  7 10  7,3,8,10     7-3, 3-8, 8-10
+## 5  9 10    9,8,10          9-8, 8-10
+## 6  7  1   7,3,8,1      7-3, 3-8, 8-1
+## 7  1  5   1,8,4,5      1-8, 8-4, 4-5
+## 8  3  6     3,7,6           3-7, 7-6
+## 9  7  4     7,3,4           7-3, 3-4
+## 10 6  1 6,7,3,8,1 6-7, 7-3, 3-8, 8-1</code></pre>
 </div>
 <div id="print-all-link-in-this-road_net" class="section level3">
 <h3>Print all link in this road_net</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(all_link &lt;-<span class="st"> </span><span class="kw">all_link</span>(road_net))
-<span class="co">#&gt;  [1] &quot;1-2&quot;  &quot;1-8&quot;  &quot;2-1&quot;  &quot;2-3&quot;  &quot;3-2&quot;  &quot;3-4&quot;  &quot;3-7&quot;  &quot;3-8&quot;  &quot;4-3&quot;  &quot;4-5&quot; </span>
-<span class="co">#&gt; [11] &quot;4-6&quot;  &quot;4-8&quot;  &quot;5-4&quot;  &quot;6-4&quot;  &quot;6-7&quot;  &quot;7-3&quot;  &quot;7-6&quot;  &quot;8-1&quot;  &quot;8-3&quot;  &quot;8-4&quot; </span>
-<span class="co">#&gt; [21] &quot;8-9&quot;  &quot;8-10&quot; &quot;9-8&quot;  &quot;10-8&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(all_link &lt;-<span class="st"> </span><span class="kw">all_link</span>(road_net))</code></pre></div>
+<pre><code>##  [1] &quot;1-2&quot;  &quot;1-8&quot;  &quot;2-1&quot;  &quot;2-3&quot;  &quot;3-2&quot;  &quot;3-4&quot;  &quot;3-7&quot;  &quot;3-8&quot;  &quot;4-3&quot;  &quot;4-5&quot; 
+## [11] &quot;4-6&quot;  &quot;4-8&quot;  &quot;5-4&quot;  &quot;6-4&quot;  &quot;6-7&quot;  &quot;7-3&quot;  &quot;7-6&quot;  &quot;8-1&quot;  &quot;8-3&quot;  &quot;8-4&quot; 
+## [21] &quot;8-9&quot;  &quot;8-10&quot; &quot;9-8&quot;  &quot;10-8&quot;</code></pre>
 </div>
 <div id="caculate-traffic-flow-of-1-single-link" class="section level3">
 <h3>Caculate traffic flow of 1 single link</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">caculate_natureflow</span>(<span class="st">&quot;1-2&quot;</span>,demosf<span class="op">$</span>link)
-<span class="co">#&gt; [1] 1048</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">caculate_natureflow</span>(<span class="st">&quot;1-2&quot;</span>,demosf<span class="op">$</span>link)</code></pre></div>
+<pre><code>## [1] 1048</code></pre>
 </div>
 <div id="caculate-traffic-flow-of-all-links" class="section level3">
 <h3>Caculate traffic flow of all links</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sapply</span>(all_link, caculate_natureflow,demosf<span class="op">$</span>link)
-<span class="co">#&gt;   1-2   1-8   2-1   2-3   3-2   3-4   3-7   3-8   4-3   4-5   4-6   4-8 </span>
-<span class="co">#&gt;  1048  7922  1034  8075  8131  6062 14036 14926  6025  9066  1999  7940 </span>
-<span class="co">#&gt;   5-4   6-4   6-7   7-3   7-6   8-1   8-3   8-4   8-9  8-10   9-8  10-8 </span>
-<span class="co">#&gt;  9095  2021  6857 13991  6906  8004 14985  7972  8836  9030  8957  9009</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sapply</span>(all_link, caculate_natureflow,demosf<span class="op">$</span>link)</code></pre></div>
+<pre><code>##   1-2   1-8   2-1   2-3   3-2   3-4   3-7   3-8   4-3   4-5   4-6   4-8 
+##  1048  7922  1034  8075  8131  6062 14036 14926  6025  9066  1999  7940 
+##   5-4   6-4   6-7   7-3   7-6   8-1   8-3   8-4   8-9  8-10   9-8  10-8 
+##  9095  2021  6857 13991  6906  8004 14985  7972  8836  9030  8957  9009</code></pre>
 </div>
 
 

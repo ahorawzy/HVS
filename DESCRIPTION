@@ -1,7 +1,7 @@
 Package: HVS
 Type: Package
 Title: This package is designed for Highway Virtual Traffic Survey Station project.
-Version: 0.0.0.9000
+Version: 0.0.1
 Author@R: person("ZhiYuan","Wang",email="lzyz09193@163.com",role="aut","cre")
 Author: ZhiYuan Wang
 Maintainer: ZhiYuan Wang <lzyz09193@163.com>
