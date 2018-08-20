@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^experiments$
 ^data_raw$
+^data-raw$
