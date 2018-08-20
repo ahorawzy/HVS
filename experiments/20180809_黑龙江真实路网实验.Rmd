@@ -1,0 +1,85 @@
+---
+title: "20180809_黑龙江真实路网实验"
+author: "wzy"
+date: "2018年8月9日"
+output: html_document
+---
+
+本实验在王佳琳建好的黑龙江高速公路真实路网的邻接矩阵基础上，尝试得到OD点的最短路径。进而运用一日的黑龙江收费数据，计算各段link的交通量。
+
+```{r}
+library(HVS)
+library(magrittr)
+library(knitr)
+```
+
+```{r}
+load("D:/R/packages/HVS/data-raw/hlj_roadnet.RData")
+load("D:/R/packages/HVS/data-raw/hlj_station.RData")
+load("D:/R/packages/HVS/data-raw/indextable.RData")
+load("D:/R/packages/HVS/data-raw/hrbs.RData")
+```
+
+
+```{r}
+result <- dijkstra_matrix(weight_mat = hlj_roadnet)
+mileage <- result[[1]]
+path <- result[[2]]
+```
+
+```{r}
+dim(hrbs)
+```
+
+## 编码转序号
+
+```{r}
+hrbs$ENSEQ <- indextoseq(hrbs$ENSTATIONINDEX)
+hrbs$EXSEQ <- indextoseq(hrbs$EXSTATIONINDEX)
+```
+
+去掉序号为0的，即编码找不到的
+
+```{r}
+hrbs <- hrbs[hrbs$ENSEQ != 0 & hrbs$EXSEQ != 0,]
+dim(hrbs)
+```
+
+## 路径匹配
+
+```{r}
+hrbs$path <- mapply(function(O,D) path[[O]][[D]],hrbs$ENSEQ,hrbs$EXSEQ)
+head(hrbs$path)
+```
+
+## 拆分link
+
+```{r}
+hrbs$link <- lapply(hrbs$path,extract_link)
+head(hrbs$link)
+```
+
+## 得到所有link
+
+```{r}
+alllink <- all_link(hlj_roadnet)
+alllink
+```
+
+## 计算所有link单日交通量
+
+```{r}
+library(parallel)
+cores <- detectCores()
+cluster <- makePSOCKcluster(cores)
+l <- parLapply(cluster,alllink,caculate_natureflow,hrbs$link)
+names(l) <- alllink
+```
+
+```{r}
+d <- data.frame(traffic_volumn = simplify2array(l))
+d$seqlink <- rownames(d)
+d$indexlink <- seqlinktoindexlink(rownames(d))
+d
+```
+
