@@ -125,6 +125,11 @@ l <- parLapply(cluster,alllink,caculate_natureflow,hrbs$link)
 names(l) <- alllink
 ```
 
+```{r}
+system.time(parLapply(cluster,alllink,caculate_natureflow,hrbs$link))
+```
+
+
 使结果输出
 
 ```{r}
