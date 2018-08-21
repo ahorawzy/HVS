@@ -1,0 +1,64 @@
+---
+title: "20180821_收费站交调站画图"
+author: "wzy"
+date: "2018年8月21日"
+output: html_document
+---
+
+```{r}
+library(Mreport)
+```
+
+
+## 收费站数据准备
+
+```{r}
+hljsfstation <- read.csv("D:\\data\\sfsj\\sf_station.csv",stringsAsFactors = F)
+hljsfstation <- hljsfstation[,c(1:7)]
+hljsfstation <- hljsfstation[1:183,c(2,3,5,6)]
+hljsfstation <- na.omit(hljsfstation)
+names(hljsfstation) <- c("popup","label","lng","lat")
+hljsfstation$type <- "sf"
+hljsfstation[hljsfstation$label=="卜奎站","lng"] <- 123.969335
+```
+
+
+```{r}
+geo_pointplot(hljsfstation,type=T,popup = ~popup)
+```
+
+## 交调数据准备
+
+```{r}
+hljjdstation <- read.csv("D:\\data\\sfsj\\黑龙江已有交调站.csv",stringsAsFactors = F)
+dim(hljjdstation)
+```
+
+```{r}
+names(hljjdstation)
+```
+
+```{r}
+hljjdstation <- hljjdstation[,c(2,3,15,16)]
+str(hljjdstation)
+```
+
+```{r}
+hljjdstation <- na.omit(hljjdstation)
+dim(hljjdstation)
+```
+
+```{r}
+names(hljjdstation) <- c("popup","label","lng","lat")
+hljjdstation$popup <- as.character(hljjdstation$popup)
+hljjdstation$type <- "jd"
+```
+
+```{r}
+hljallstation <- rbind(hljjdstation,hljsfstation)
+```
+
+```{r}
+geo_pointplot(hljallstation,type=T,popup = ~popup)
+```
+
