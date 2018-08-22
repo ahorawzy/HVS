@@ -30,35 +30,73 @@ geo_pointplot(hljsfstation,type=T,popup = ~popup)
 ## 交调数据准备
 
 ```{r}
-hljjdstation <- read.csv("D:\\data\\sfsj\\黑龙江已有交调站.csv",stringsAsFactors = F)
-dim(hljjdstation)
+allstation <- read.csv("D:\\data\\sx_raw\\基础数据\\站点管理\\all.csv",stringsAsFactors = F)
+allstation$省 <- substr(allstation$行政区划,1,4)
+hljjdstation <- allstation[allstation$省=="黑龙江省",]
+hljjdstation <- hljjdstation[,c(2,3,7,41,42)]
+hljjdstations <- na.omit(hljjdstation)
+hljjdstations <- hljjdstations[hljjdstations$行政等级=="国家高速",]
 ```
 
 ```{r}
-names(hljjdstation)
+names(hljjdstations) <- c("popup","label","type","lng","lat")
+hljjdstations$type <- "jd"
+hljjdstations <- hljjdstations[,c(1,2,4,5,3)]
+names(hljjdstations)
 ```
 
 ```{r}
-hljjdstation <- hljjdstation[,c(2,3,15,16)]
-str(hljjdstation)
+names(hljsfstation)
 ```
 
 ```{r}
-hljjdstation <- na.omit(hljjdstation)
-dim(hljjdstation)
+hljallstation <- rbind(hljsfstation,hljjdstations)
+hljallstation$popup <- as.character(hljallstation$popup)
 ```
 
 ```{r}
-names(hljjdstation) <- c("popup","label","lng","lat")
-hljjdstation$popup <- as.character(hljjdstation$popup)
-hljjdstation$type <- "jd"
+dim(hljallstation)
+```
+
+
+```{r}
+hljallstation <- hljallstation[hljallstation$label!="兴安台",]
+dim(hljallstation)
+```
+
+
+
+```{r}
+geo_pointplot(hljallstation,type=T)
+```
+
+## 虚拟站
+
+```{r}
+xn <- read.csv("D:\\data\\sfsj\\虚拟站对应经纬度.csv",stringsAsFactors = F)
+dim(xn)
 ```
 
 ```{r}
-hljallstation <- rbind(hljjdstation,hljsfstation)
+names(xn) <- c("popup","label","lng","lat","type")
 ```
 
 ```{r}
-geo_pointplot(hljallstation,type=T,popup = ~popup)
+dim(hljallstation)
+dim(xn)
+```
+
+```{r}
+hljallstation <- rbind(hljallstation,xn)
+hljallstation$popup <- as.character(hljallstation$popup)
+```
+
+```{r}
+geo_pointplot(hljallstation,type=T)
+```
+
+
+```{r}
+write.csv(hljallstation,file="D:\\交大云同步\\实习\\11_黑龙江多源数据分析\\hljallstation.csv")
 ```
 
