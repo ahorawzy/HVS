@@ -101,6 +101,9 @@ y2 <- y[[2]]
 ```{r}
 z <- cbind(as.data.frame(matrix(y1)),as.data.frame(matrix(y2)))
 names(z) <- names(y)
-z
+```
+
+```{r}
+caculate_natureflow_by(hljsf21,"VT")
 ```
 
