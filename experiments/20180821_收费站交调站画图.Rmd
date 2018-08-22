@@ -92,6 +92,13 @@ hljallstation$popup <- as.character(hljallstation$popup)
 ```
 
 ```{r}
+hljallstation[hljallstation$type=="jd","type"] <- "交调站"
+hljallstation[hljallstation$type=="sf","type"] <- "收费站"
+hljallstation[hljallstation$type=="xn","type"] <- "虚拟收费站"
+```
+
+
+```{r}
 geo_pointplot(hljallstation,type=T)
 ```
 
