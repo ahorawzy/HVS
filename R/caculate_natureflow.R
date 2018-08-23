@@ -12,7 +12,7 @@ where <- function(f, x){
 caculate_natureflow_by <- function(sfdf,bywhat){
   fac <- as.factor(sfdf[[bywhat]])
   splitsfdf <- split(sfdf,fac)
-  y <- lapply(splitsfdf, caculate_flow_by)
+  y <- lapply(splitsfdf, caculate_flow_cluster)
   z <- lapply(y, matrix)
   z <- as.data.frame(z)
   names(z) <- names(y)
@@ -20,7 +20,9 @@ caculate_natureflow_by <- function(sfdf,bywhat){
 }
 
 caculate_flow_cluster <- function(df){
-  cores <- detectCores()
-  cluster <- makePSOCKcluster(cores)
-  return(parLapply(cluster,alllink,caculate_natureflow,df$link))
+  cores <- parallel::detectCores()
+  cluster <- parallel::makePSOCKcluster(cores)
+  outcome <- parallel::parLapply(cluster,alllink,caculate_natureflow,df$link)
+  parallel::stopCluster(cluster)
+  return(outcome)
 }
