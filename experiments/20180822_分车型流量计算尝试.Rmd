@@ -66,6 +66,17 @@ d <- d[,c(3,2,1)]
 kable(head(d,20))
 ```
 
+```{r}
+system.time(caculate_natureflow_all(hljsf21))
+```
+
+
+```{r}
+x <- caculate_natureflow_all(hljsf21)
+head(x,20)
+```
+
+
 ## 分车型（VT）
 
 ```{r warning=FALSE}
@@ -80,7 +91,7 @@ flowbyvt <- caculate_natureflow_by(hljsf21,"VT")
 head(flowbyvt,20)
 ```
 
-## 分车等级
+## 分车等级(VC)
 
 ```{r}
 system.time(caculate_natureflow_by(hljsf21,"VC"))
