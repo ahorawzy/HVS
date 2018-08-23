@@ -68,42 +68,30 @@ kable(head(d,20))
 
 ## 分车型（VT）
 
-```{r}
-VT <- as.factor(hljsf21$VT)
-x <- split(hljsf21,VT)
+```{r warning=FALSE}
+system.time(caculate_natureflow_by(hljsf21,"VT"))
+```
+
+```{r warning=FALSE}
+flowbyvt <- caculate_natureflow_by(hljsf21,"VT")
 ```
 
 ```{r}
-caculate_flow_cluster <- function(df){
-  cores <- detectCores()
-  cluster <- makePSOCKcluster(cores)
-  return(parLapply(cluster,alllink,caculate_natureflow,df$link))
-}
+head(flowbyvt,20)
+```
+
+## 分车等级
+
+```{r}
+system.time(caculate_natureflow_by(hljsf21,"VC"))
+```
+
+
+```{r}
+flowbyvc <- caculate_natureflow_by(hljsf21,"VC")
 ```
 
 ```{r}
-system.time(lapply(x,caculate_flow_by))
-```
-
-```{r}
-y <- lapply(x, caculate_flow_by)
-```
-
-```{r}
-length(y)
-```
-
-```{r}
-y1 <- y[[1]]
-y2 <- y[[2]]
-```
-
-```{r}
-z <- cbind(as.data.frame(matrix(y1)),as.data.frame(matrix(y2)))
-names(z) <- names(y)
-```
-
-```{r}
-caculate_natureflow_by(hljsf21,"VT")
+head(flowbyvc,20)
 ```
 
