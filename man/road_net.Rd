@@ -4,7 +4,7 @@
 \name{road_net}
 \alias{road_net}
 \title{Road net matrix for demo}
-\format{The matrix's is 10*10. Number "0" means there's no connection or connect to itself.}
+\format{The matrix's is 10*10. Number '0' means there's no connection or connect to itself.}
 \usage{
 road_net
 }
