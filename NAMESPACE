@@ -2,6 +2,8 @@
 
 export(all_link)
 export(caculate_natureflow)
+export(caculate_natureflow_all)
+export(caculate_natureflow_by)
 export(dijkstra_matrix)
 export(extract_link)
 export(indextoseq)

@@ -7,7 +7,7 @@
 extract_link(path_i)
 }
 \arguments{
-\item{path_i}{A string contains path information and seperated by ","}
+\item{path_i}{A string contains path information and seperated by ','}
 }
 \value{
 A character vector contains all links in this path.
@@ -16,6 +16,6 @@ A character vector contains all links in this path.
 \code{extract_link} can extracts links information from a path string.
 }
 \examples{
-extract_link("1,3,5,6,7,10")
+extract_link('1,3,5,6,7,10')
 
 }

@@ -1,0 +1,109 @@
+---
+title: "20180821_收费站交调站画图"
+author: "wzy"
+date: "2018年8月21日"
+output: html_document
+---
+
+```{r}
+library(Mreport)
+```
+
+
+## 收费站数据准备
+
+```{r}
+hljsfstation <- read.csv("D:\\data\\sfsj\\sf_station.csv",stringsAsFactors = F)
+hljsfstation <- hljsfstation[,c(1:7)]
+hljsfstation <- hljsfstation[1:183,c(2,3,5,6)]
+hljsfstation <- na.omit(hljsfstation)
+names(hljsfstation) <- c("popup","label","lng","lat")
+hljsfstation$type <- "sf"
+hljsfstation[hljsfstation$label=="卜奎站","lng"] <- 123.969335
+```
+
+
+```{r}
+geo_pointplot(hljsfstation,type=T,popup = ~popup)
+```
+
+## 交调数据准备
+
+```{r}
+allstation <- read.csv("D:\\data\\sx_raw\\基础数据\\站点管理\\all.csv",stringsAsFactors = F)
+allstation$省 <- substr(allstation$行政区划,1,4)
+hljjdstation <- allstation[allstation$省=="黑龙江省",]
+hljjdstation <- hljjdstation[,c(2,3,7,41,42)]
+hljjdstations <- na.omit(hljjdstation)
+hljjdstations <- hljjdstations[hljjdstations$行政等级=="国家高速",]
+```
+
+```{r}
+names(hljjdstations) <- c("popup","label","type","lng","lat")
+hljjdstations$type <- "jd"
+hljjdstations <- hljjdstations[,c(1,2,4,5,3)]
+names(hljjdstations)
+```
+
+```{r}
+names(hljsfstation)
+```
+
+```{r}
+hljallstation <- rbind(hljsfstation,hljjdstations)
+hljallstation$popup <- as.character(hljallstation$popup)
+```
+
+```{r}
+dim(hljallstation)
+```
+
+
+```{r}
+hljallstation <- hljallstation[hljallstation$label!="兴安台",]
+dim(hljallstation)
+```
+
+
+
+```{r}
+geo_pointplot(hljallstation,type=T)
+```
+
+## 虚拟站
+
+```{r}
+xn <- read.csv("D:\\data\\sfsj\\虚拟站对应经纬度.csv",stringsAsFactors = F)
+dim(xn)
+```
+
+```{r}
+names(xn) <- c("popup","label","lng","lat","type")
+```
+
+```{r}
+dim(hljallstation)
+dim(xn)
+```
+
+```{r}
+hljallstation <- rbind(hljallstation,xn)
+hljallstation$popup <- as.character(hljallstation$popup)
+```
+
+```{r}
+hljallstation[hljallstation$type=="jd","type"] <- "交调站"
+hljallstation[hljallstation$type=="sf","type"] <- "收费站"
+hljallstation[hljallstation$type=="xn","type"] <- "虚拟收费站"
+```
+
+
+```{r}
+geo_pointplot(hljallstation,type=T)
+```
+
+
+```{r}
+write.csv(hljallstation,file="D:\\交大云同步\\实习\\11_黑龙江多源数据分析\\hljallstation.csv")
+```
+

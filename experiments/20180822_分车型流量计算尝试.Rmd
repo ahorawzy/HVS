@@ -1,0 +1,108 @@
+---
+title: "20180822_分车型流量计算尝试"
+author: "wzy"
+date: "2018年8月22日"
+output: html_document
+---
+
+```{r}
+rm(list=ls())
+```
+
+
+```{r}
+library(HVS)
+library(magrittr)
+library(knitr)
+library(plyr)
+```
+
+```{r}
+load("D:/R/packages/HVS/data-raw/hlj_roadnet.RData")
+load("D:/R/packages/HVS/data-raw/indextable.RData")
+load("D:/R/packages/HVS/data-raw/hljsf21.RData")
+```
+
+## 标准过程
+
+```{r}
+result <- dijkstra_matrix(weight_mat = hlj_roadnet)
+mileage <- result[[1]]
+path <- result[[2]]
+```
+
+```{r}
+hljsf21$ENSEQ <- indextoseq(hljsf21$ENSTATIONINDEX)
+hljsf21$EXSEQ <- indextoseq(hljsf21$EXSTATIONINDEX)
+hljsf21 <- hljsf21[hljsf21$ENSEQ != 0 & hljsf21$EXSEQ != 0,]
+```
+
+```{r}
+hljsf21$path <- mapply(function(O,D) path[[O]][[D]],hljsf21$ENSEQ,hljsf21$EXSEQ)
+```
+
+```{r}
+hljsf21$link <- lapply(hljsf21$path,extract_link)
+```
+
+```{r}
+alllink <- all_link(hlj_roadnet)
+```
+
+```{r eval=FALSE}
+library(parallel)
+cores <- detectCores()
+cluster <- makePSOCKcluster(cores)
+l <- parLapply(cluster,alllink,caculate_natureflow,hljsf21$link)
+names(l) <- alllink
+```
+
+```{r eval=FALSE}
+d <- data.frame(traffic_volumn = simplify2array(l))
+d$seqlink <- rownames(d)
+d$indexlink <- seqlinktoindexlink(rownames(d))
+rownames(d) <- 1:nrow(d)
+d <- d[,c(3,2,1)]
+kable(head(d,20))
+```
+
+```{r}
+system.time(caculate_natureflow_all(hljsf21))
+```
+
+
+```{r}
+x <- caculate_natureflow_all(hljsf21)
+head(x,20)
+```
+
+
+## 分车型（VT）
+
+```{r warning=FALSE}
+system.time(caculate_natureflow_by(hljsf21,"VT"))
+```
+
+```{r warning=FALSE}
+flowbyvt <- caculate_natureflow_by(hljsf21,"VT")
+```
+
+```{r}
+head(flowbyvt,20)
+```
+
+## 分车等级(VC)
+
+```{r}
+system.time(caculate_natureflow_by(hljsf21,"VC"))
+```
+
+
+```{r}
+flowbyvc <- caculate_natureflow_by(hljsf21,"VC")
+```
+
+```{r}
+head(flowbyvc,20)
+```
+
